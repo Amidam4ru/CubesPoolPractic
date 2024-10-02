@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class LifeTimeManager : MonoBehaviour
+public class CalculationLifeTime : MonoBehaviour
 {
     [SerializeField, Min(1)] private float _minLifeTime = 2f;
     [SerializeField] private float _maxLifeTime = 6f;

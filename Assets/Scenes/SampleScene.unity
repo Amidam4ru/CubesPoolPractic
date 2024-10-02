@@ -962,6 +962,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2025071303172389480, guid: ceff6996cbde3e3429b9125d4782dad5, type: 3}
+      propertyPath: _cubePrefab
+      value: 
+      objectReference: {fileID: 2060764724845398837, guid: 365a6d5208e178d43bc8869937442e1f, type: 3}
+    - target: {fileID: 2025071303172389480, guid: ceff6996cbde3e3429b9125d4782dad5, type: 3}
       propertyPath: _poolMaxSize
       value: 10
       objectReference: {fileID: 0}
