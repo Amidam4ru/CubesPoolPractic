@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -11,46 +13,67 @@ public class Spawner : MonoBehaviour
     [SerializeField] private int _poolCapacity = 10;
     [SerializeField] private int _poolMaxSize = 10;
 
-    private ObjectPool<GameObject> _cubePool;
-    private Coroutine _coroutine;
+    private ObjectPool<Cube> _cubePool;
+    private Coroutine _spawnCubeCorutine;
     private WaitForSeconds _spawnDelay;
+    private List<CalculationLifeTime> _allSignedCubes;
+
 
     private void Awake()
     {
-        _cubePool = new ObjectPool<GameObject>(
+        _cubePool = new ObjectPool<Cube>(
         createFunc: () => CreateCube(),
-        actionOnGet: (cube) => ActionGet(cube),
-        actionOnRelease: (cube) => cube.SetActive(false),
-        actionOnDestroy: (cube) => Destroy(cube),
+        actionOnGet: (cube) => LaunchCube(cube),
+        actionOnRelease: (cube) => cube.gameObject.SetActive(false),
+        actionOnDestroy: (cube) => Destroy(cube.gameObject),
         collectionCheck: true,
         defaultCapacity: _poolCapacity,
         maxSize: _poolMaxSize);
     }
 
-    private void Start()
+    private void OnEnable()
     {
+        _allSignedCubes = new List<CalculationLifeTime>();
         _spawnDelay = new WaitForSeconds(_spawnRate);
-        Coroutine spawnCubeCorutine = StartCoroutine(SpawnCube());
+        _spawnCubeCorutine = StartCoroutine(SpawnCube());
     }
 
-    private GameObject CreateCube()
+    private void OnDisable()
+    {
+        StopCoroutine(_spawnCubeCorutine);
+        UnsubscribeFromCubes();
+    }
+
+    private Cube CreateCube()
     {
         Cube newCube = Instantiate(_cubePrefab);
-        return newCube.gameObject;
+        CalculationLifeTime lifeTimeNewCube = newCube.gameObject.GetComponent<CalculationLifeTime>();
+        lifeTimeNewCube.Lived += ReleaseCube;
+        _allSignedCubes.Add(lifeTimeNewCube);
+
+        return newCube;
     }
 
-    private void ActionGet(GameObject cube)
+    private void UnsubscribeFromCubes()
+    {
+        foreach (CalculationLifeTime cube in _allSignedCubes)
+        {
+            cube.Lived -= ReleaseCube;
+        }
+    }
+
+    private void ReleaseCube(Cube cube)
+    {
+        _cubePool.Release(cube);
+    }
+
+    private void LaunchCube(Cube cube)
     {
         float xPosition = Random.Range(_leftFurtherSpawnPosition.position.x, _rightNearSpawnPosition.position.x);
         float zPosition = Random.Range(_rightNearSpawnPosition.position.z, _leftFurtherSpawnPosition.position.z);
-        float yPosition = gameObject.transform.position.y;
+        float yPosition = transform.position.y;
         cube.transform.position = new Vector3(xPosition, yPosition, zPosition);
-        cube.SetActive(true);
-    }
-
-    public void ReleaseCube(GameObject cube)
-    {
-            _cubePool.Release(cube);
+        cube.gameObject.SetActive(true);
     }
 
     private IEnumerator SpawnCube()
