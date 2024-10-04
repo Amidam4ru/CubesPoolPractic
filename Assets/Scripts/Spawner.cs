@@ -27,18 +27,23 @@ public class Spawner : MonoBehaviour
         collectionCheck: true,
         defaultCapacity: _poolCapacity,
         maxSize: _poolMaxSize);
+
+        _allSignedCubes = new List<Cube>();
+        _spawnDelay = new WaitForSeconds(_spawnRate);
     }
 
     private void OnEnable()
     {
-        _allSignedCubes = new List<Cube>();
-        _spawnDelay = new WaitForSeconds(_spawnRate);
         _spawnCubeCorutine = StartCoroutine(SpawnCube());
     }
 
     private void OnDisable()
     {
         StopCoroutine(_spawnCubeCorutine);
+    }
+
+    private void OnDestroy()
+    {
         UnsubscribeFromCubes();
     }
 

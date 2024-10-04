@@ -25,6 +25,6 @@ public class Cube : MonoBehaviour
 
     private void Release()
     {
-        Died?.Invoke(GetComponent<Cube>());
+        Died?.Invoke(this);
     }
 }
