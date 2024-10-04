@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(Cube))]
 public class CalculationLifeTime : MonoBehaviour
 {
     [SerializeField, Min(1)] private float _minLifeTime = 2f;
@@ -11,9 +10,8 @@ public class CalculationLifeTime : MonoBehaviour
     private float _lifeTime;
     private WaitForSeconds _releaseDeleay;
     private Coroutine _releaseCorutine;
-    private Spawner _spawner;
 
-    public event Action<Cube> Lived;
+    public event Action Destroyed;
 
     private void OnValidate()
     {
@@ -27,6 +25,12 @@ public class CalculationLifeTime : MonoBehaviour
     {
         _lifeTime = UnityEngine.Random.Range(_minLifeTime, _maxLifeTime);
         _releaseDeleay = new WaitForSeconds(_lifeTime);
+
+        if (_releaseCorutine != null)
+        {
+            StopCoroutine(_releaseCorutine);
+        }
+
         _releaseCorutine = StartCoroutine(Release());
     }
 
@@ -34,6 +38,6 @@ public class CalculationLifeTime : MonoBehaviour
     {
         yield return _releaseDeleay;
 
-        Lived?.Invoke(gameObject.GetComponent<Cube>());
+        Destroyed?.Invoke();
     }
 }

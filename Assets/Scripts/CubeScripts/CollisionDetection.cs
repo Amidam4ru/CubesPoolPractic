@@ -14,9 +14,9 @@ public class CollisionDetection : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.transform.gameObject.GetComponent<Plane>() == true && _wasCollision == false)
+        if (collision.transform.TryGetComponent<Plane>(out Plane plane) && _wasCollision == false)
         {
-            _collided.Invoke();
+            _collided?.Invoke();
             _wasCollision = true;
         }
     }

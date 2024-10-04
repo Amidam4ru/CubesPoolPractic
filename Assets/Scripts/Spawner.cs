@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -16,8 +15,7 @@ public class Spawner : MonoBehaviour
     private ObjectPool<Cube> _cubePool;
     private Coroutine _spawnCubeCorutine;
     private WaitForSeconds _spawnDelay;
-    private List<CalculationLifeTime> _allSignedCubes;
-
+    private List<Cube> _allSignedCubes;
 
     private void Awake()
     {
@@ -33,7 +31,7 @@ public class Spawner : MonoBehaviour
 
     private void OnEnable()
     {
-        _allSignedCubes = new List<CalculationLifeTime>();
+        _allSignedCubes = new List<Cube>();
         _spawnDelay = new WaitForSeconds(_spawnRate);
         _spawnCubeCorutine = StartCoroutine(SpawnCube());
     }
@@ -47,18 +45,17 @@ public class Spawner : MonoBehaviour
     private Cube CreateCube()
     {
         Cube newCube = Instantiate(_cubePrefab);
-        CalculationLifeTime lifeTimeNewCube = newCube.gameObject.GetComponent<CalculationLifeTime>();
-        lifeTimeNewCube.Lived += ReleaseCube;
-        _allSignedCubes.Add(lifeTimeNewCube);
+        newCube.Died += ReleaseCube;
+        _allSignedCubes.Add(newCube);
 
         return newCube;
     }
 
     private void UnsubscribeFromCubes()
     {
-        foreach (CalculationLifeTime cube in _allSignedCubes)
+        foreach (Cube cube in _allSignedCubes)
         {
-            cube.Lived -= ReleaseCube;
+            cube.Died -= ReleaseCube;
         }
     }
 
